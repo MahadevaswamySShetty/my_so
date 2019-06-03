@@ -1,0 +1,18 @@
+
+.panel-body{
+    height: 50vh;
+    overflow-y: scroll;
+}
+.message{
+    padding: 10pt;
+    border-radius: 5pt;
+    margin: 5pt;
+}
+.owner{
+    background-color: #ccd7e0;
+    float: right;
+}
+.not_owner{
+    background-color: #eaeff2;
+    float:left;
+}
