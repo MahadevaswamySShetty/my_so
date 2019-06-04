@@ -51,6 +51,7 @@ class RegisterController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
+            'file' => 'required',
         ]);
     }
 
@@ -62,9 +63,13 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        $filename =$data['file'];
+        $filename = $filename->store('public/profile');
+        $filename1 = str_replace('public/profile/', '', $filename);
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'file' => $filename1,
             'password' => bcrypt($data['password']),
         ]);
     }

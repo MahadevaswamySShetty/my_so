@@ -8,7 +8,7 @@
                 <div class="panel-heading">Register</div>
 
                 <div class="panel-body">
-                    <form class="form-horizontal" method="POST" action="{{ route('register') }}">
+                    <form class="form-horizontal" method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
                         {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
@@ -34,6 +34,20 @@
                                 @if ($errors->has('email'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('email') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('file') ? ' has-error' : '' }}">
+                            <label for="file" class="col-md-4 control-label">Photo</label>
+
+                            <div class="col-md-6">
+                                <input id="file" type="file" class="form-control" name="file" value="{{ old('file') }}" required>
+
+                                @if ($errors->has('file'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('file') }}</strong>
                                     </span>
                                 @endif
                             </div>

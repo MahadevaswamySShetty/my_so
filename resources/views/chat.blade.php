@@ -1,76 +1,89 @@
+
 @extends('layouts.app')
 @section('content')
-
-<style type="text/css">
-    #messages{
-        border: 1px solid black;
-        height: 300px;
-        margin-bottom: 8px;
-        overflow: scroll;
-        padding: 5px;
-    }
-</style>
-<div class="container spark-screen">
+<div class="container">
     <div class="row">
-        <div class="col-md-10 col-md-offset-1">
+        <div class="col-md-6 col-md-offset-3">
             <div class="panel panel-default">
-                <div class="panel-heading">Chat Message Module</div>
-                <div class="panel-body">
- 
-                <div class="row">
-                    <div class="col-lg-8">
-                      <div id="messages"></div>
+                <div class="panel-heading text-center"><b>Group Message</b></div>
+                <div class="panel-body" id="panel-body">
+                    @foreach($chat as $chat)
+                    <div class="row">
+                        <div class="message {{ ($chat->user_id!=Auth::user()->id)?'not_owner':'owner'}}">
+                            {{$chat->message}}<br/>
+                            <b>{{$chat->created_at->diffForHumans()}}</b>
+                           
+                        </div>
                     </div>
-                    <div class="col-lg-8" >
-                            <form id="form_submit">
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}" >
-                                <input type="hidden" name="user" value="{{ Auth::user()->name }}">
-                                <textarea class="form-control msg"></textarea>
-                                <br/>
-                                <input type="submit" value="Send" id="submit" class="btn btn-success send-msg">
-                            </form>
-                    </div>
+                    @endforeach
                 </div>
+                <div class="panel-footer">
+                    <div class="input-group" id="chat-form">
+                        <input id="msg" type="text" class="form-control" placeholder="Type your message here..." />
+                        <input type="hidden" id="csrf_token_input" value="{{csrf_token()}}"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" onclick="button_send_msg()" id="btn-chat">
+                                Send</button>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
-
 <script>
+    var user = {{Auth::user()->id}};
+    
     var socket = io.connect('http://localhost:8890');
     console.log(socket);
     socket.on('message', function (data) {
         data = jQuery.parseJSON(data);
-        console.log(data);
-       $("#messages").append("<strong>"+data.user+":</strong><p>"+data.message+"</p>");
-      });   
-   $(document).ready(function(e){
-     $("#form_submit").on('submit',function(e){      
-        e.preventDefault();
-        alert("hi");
-        var token = $("input[name='_token']").val();
-        var user = $("input[name='user']").val();
-        var msg = $(".msg").val();
-        if(msg != ''){
+        //console.log(data);
+        if(data.user_id == user){
+            $('#panel-body').append(
+                    '<div class="row">'+
+                    '<div class="message owner">'+
+                    data.message+'<br/>'+'<b>now</b>'+
+                    '</div>'+
+                    '</div>');
+             
+        }else{
+            $('#panel-body').append(
+                    '<div class="row">'+
+                    '<div class="message not_owner">'+
+                    data.message+'<br/>'+'<b>now</b>'+
+                    '</div>'+
+                    '</div>');
+             
+        }
+
+      });  
+</script>
+<script>
+        
+        function button_send_msg(){
+            var msg = $('#msg').val();
+            $('#msg').val('');//reset
             $.ajax({
+                headers: { 'X-CSRF-Token' : $('#csrf_token_input').val() },
                 type: "POST",
-                url: '{{url("sendMessage")}}',
-                dataType: "json",
-                data: {'_token':token,'message':msg,'user':user},
-                success:function(data){
+                url: '/group_chat_store',
+                data: {
+                    'message': msg,
+                },
+                success: function (data) {
                     console.log(data);
-                    $(".msg").val('');
+                    
+
+                },
+                error: function (e) {
+                    console.log(e);
                 }
             });
-        }else{
-            alert("Please Add Message.");
         }
-    })
-   }) 
-    
-</script>
+
+
+    </script>
 @endsection

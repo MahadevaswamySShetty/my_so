@@ -11,7 +11,9 @@ class ChatController extends Controller
 {
     public function chat()
     {
-    	return view('chat');
+        $chat = Chat::with('users')->get();
+        return view('chat', compact('chat'));
+    	
     }
 
     public function  sendMessage(Request $request)
